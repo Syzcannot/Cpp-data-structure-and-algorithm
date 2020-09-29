@@ -1,0 +1,50 @@
+#include<cstdio>
+#include<algorithm>
+#include<cmath>
+using namespace std;
+const int MaxN=300000;
+const double Pi=acos(-1);
+struct Complex{
+	double x,y;
+	inline Complex operator + (const Complex &A) {return (Complex){x+A.x,y+A.y};}
+	inline Complex operator - (const Complex &A) {return (Complex){x-A.x,y-A.y};}
+	inline Complex operator * (const Complex &A) {return (Complex){x*A.x-y*A.y,x*A.y+y*A.x};}
+} a[MaxN],b[MaxN],c[MaxN];
+int n,m,size,l,r[MaxN];
+inline int Read()
+{
+    int x=0,f=1; char ch=getchar();
+    while (ch<'0'||ch>'9') {if (ch=='-') f=-1; ch=getchar();}
+    while (ch>='0'&&ch<='9') {x=x*10+ch-'0'; ch=getchar();}
+    return x*f;
+}
+inline void FFT(Complex *a,int opt)
+{
+	Complex wn,w,x,y;
+	for (int i=0;i<size;++i) if(i<r[i]) swap(a[i],a[r[i]]);
+	for (int i=1;i<size;i<<=1)
+	{
+		wn=(Complex){cos(Pi/i),opt*sin(Pi/i)};
+		for (int p=i<<1,j=0;j<size;j+=p)
+		{
+			w=(Complex){1,0};
+			for (int k=0;k<i;++k,w=wn*w)
+			{
+				x=a[j+k],y=w*a[j+k+i];
+				a[j+k]=x+y,a[j+k+i]=x-y;
+			}
+		}
+	}
+}
+int main(){
+	n=Read(); m=Read();
+	for (int i=0;i<=n;++i) a[i].x=Read();
+	for (int i=0;i<=m;++i) b[i].x=Read();
+	for (size=1;size<=n+m;size<<=1) l++;
+	for (int i=0;i<size;++i) r[i]=(r[i>>1]>>1)|((i&1)<<(l-1));
+	FFT(a,1); FFT(b,1);
+	for (int i=0;i<=size;++i) c[i]=a[i]*b[i];
+	FFT(c,-1);
+	for(int i=0;i<=n+m;++i) printf("%d ",(int)(c[i].x/size+0.5));
+	return 0;
+}
