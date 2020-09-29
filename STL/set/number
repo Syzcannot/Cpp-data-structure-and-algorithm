@@ -1,0 +1,35 @@
+#include <set>
+#include <cstdio>
+using namespace std;
+int T,n,x;
+set<int> A;
+inline int Read()
+{
+    int x=0,f=1; char ch=getchar(); 
+    while (ch<'0'||ch>'9') {if (ch=='-') f=-f; ch=getchar();}
+    while (ch>='0'&&ch<='9') x=x*10+ch-'0',ch=getchar();
+    return x*f;
+}
+inline void write(int x)
+{
+	putchar(' ');
+	if (x<0) putchar('-'),x=-x; 
+	if (!x) putchar('0'); else 
+	{
+	    int len=0; char s[30]; 
+	    while (x) s[++len]=x%10+'0',x/=10;
+	  	while (len) putchar(s[len--]);
+	} 
+}
+int main() 
+{
+    T=Read();
+    while (T--) 
+	{
+        n=Read(); A.clear();
+        x=Read(); printf("%d",x); A.insert(x);
+        for(int i=2;i<=n;++i) {x=Read(); if(A.count(x)==0) {write(x); A.insert(x);}}
+        putchar('\n');
+    }
+    return 0;
+}
