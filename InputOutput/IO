@@ -1,0 +1,27 @@
+inline int Read()
+{
+    int x=0,f=1; char ch=getchar(); 
+    while (ch<'0'||ch>'9') {if (ch=='-') f=-f; ch=getchar();}
+    while (ch>='0'&&ch<='9') x=x*10+ch-'0',ch=getchar();
+    return x*f;
+}
+
+inline int getc() 
+{
+    static const int L=1<<15;
+    static char buf[L],*S=buf,*T=buf;
+    if (S==T) {T=(S=buf)+fread(buf,1,L,stdin); if (S==T) return EOF;}
+    return *S++;
+}
+
+inline void writeln(int x)
+{
+	if (x<0) putchar('-'),x=-x; 
+	if (!x) putchar('0'); else 
+	{
+	    int len=0; char s[30]; 
+	    while (x) s[++len]=x%10+'0',x/=10;
+	  	while (len) putchar(s[len--]);
+	} 
+	putchar('\n');
+}
