@@ -1,0 +1,55 @@
+type eType=record
+     b,w,next:longint;
+     end;
+const inf=1000000000;
+      maxn=10000+100; maxm=100000+100;
+var e:array[0..maxm] of eType;
+    dis,first,q:array[0..maxn] of longint;
+    ex:array[0..maxn] of boolean;
+    n,m,s,t,tot:longint;
+procedure insert(u,v,w:longint);
+ begin
+   inc(tot);
+   e[tot].b:=v; e[tot].w:=w;
+   e[tot].next:=first[u]; first[u]:=tot;
+ end;
+procedure init;
+ var i,u,v,w:longint;
+ begin
+   assign(input,'road.in'); reset(input);
+   assign(output,'spfa.out'); rewrite(output);
+   readln(n,m,s,t);
+   for i:=1 to m do begin readln(u,v,w); insert(u,v,w); end;
+ end;
+procedure spfa;
+ var cl,op,u,v,i,now:longint;
+ begin
+   for i:=1 to n do begin dis[i]:=inf; ex[i]:=false; end;
+   cl:=0; op:=1;
+   dis[s]:=0; q[1]:=s; ex[s]:=true;
+   repeat
+     cl:=(cl+1) mod (n+1);
+     u:=q[cl]; ex[u]:=false;
+
+     now:=first[u];
+     while now<>0 do
+      begin
+        v:=e[now].b;
+        if dis[u]+e[now].w<dis[v] then
+         begin
+           dis[v]:=dis[u]+e[now].w;
+           if not ex[v] then
+            begin
+              op:=(op+1) mod (n+1);
+              q[op]:=v; ex[v]:=true;
+            end;
+         end;
+        now:=e[now].next;
+      end;
+   until cl=op;
+ end;
+begin
+  init;
+  spfa;
+  writeln(dis[t]);
+end.
