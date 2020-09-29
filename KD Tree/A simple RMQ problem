@@ -1,0 +1,97 @@
+#include<cstdio>
+#include<algorithm>
+using namespace std;
+const int MaxN=100000+10;
+struct Node{int d[3],val;} p[MaxN];
+struct KDTree{int d[3],s[2],minD[3],maxD[3],val;} t[MaxN];
+int n,m,Root,D,ans,tmp,pos[3][2];
+int a[MaxN],L[MaxN],R[MaxN],last[MaxN];
+inline int Read()
+{
+    int x=0,f=1; char ch=getchar(); 
+    while (ch<'0'||ch>'9') {if (ch=='-') f=-1; ch=getchar();}
+    while (ch>='0'&&ch<='9') {x=x*10+ch-'0'; ch=getchar();}
+    return x*f;
+}
+inline void writeln(int x)
+{
+	if (x<0) {putchar('-'); x=-x;} if (!x) {putchar('0'); putchar('\n'); return;} 
+	char st[20]; int len=0;
+	while (x) {st[++len]=x%10+'0'; x/=10;}
+	while (len) putchar(st[len--]); putchar('\n');
+}
+inline int min(int a,int b) {return a<b?a:b;}
+inline int max(int a,int b) {return a>b?a:b;}
+inline bool operator < (const Node &a,const Node &b) {return a.d[D]<b.d[D];}
+void Init()
+{
+	//freopen("3489.in","r",stdin);
+	n=Read(); m=Read();
+	for (int i=1;i<=n;++i) L[i]=last[a[i]=Read()],last[a[i]]=i;
+	for (int i=0;i<=n;++i) last[i]=n+1;
+    for (int i=n;i;--i) R[i]=last[a[i]],last[a[i]]=i;
+}
+inline void update(int x,int s)
+{
+    for (int i=0;i<3;++i) t[x].minD[i]=min(t[x].minD[i],t[s].minD[i]),t[x].maxD[i]=max(t[x].maxD[i],t[s].maxD[i]),
+    t[x].val=max(t[x].val,t[s].val);
+}
+inline int Build(int l,int r,int d)
+{
+	D=d; int now=(l+r)>>1; 
+	nth_element(p+l,p+now,p+r+1); t[now].val=p[now].val;
+	for (int i=0;i<3;++i) t[now].minD[i]=t[now].maxD[i]=t[now].d[i]=p[now].d[i];
+	if (l<now) t[now].s[0]=Build(l,now-1,(d+1)%3),update(now,t[now].s[0]);
+    if (now<r) t[now].s[1]=Build(now+1,r,(d+1)%3),update(now,t[now].s[1]);
+    return now;
+}
+inline bool check(int now)
+{
+    for (int i=0;i<3;++i) if(pos[i][0]>t[now].maxD[i]||pos[i][1]<t[now].minD[i]) return 0;
+    return 1;
+}
+inline void query(int now)
+{
+	if (t[now].val<ans) return;
+	bool flag=1;
+    for (int i=0;i<3;++i) if (pos[i][0]>t[now].minD[i]||t[now].maxD[i]>pos[i][1]) flag=0;
+    if (flag) {ans=max(ans,t[now].val); return;}
+	
+	flag=1;
+    for (int i=0;i<3;++i) if (pos[i][0]>p[now].d[i]||pos[i][1]<p[now].d[i]) flag=0;
+    if (flag) ans=max(ans,p[now].val);
+    
+	int L=t[now].s[0],R=t[now].s[1];
+    if ((!L)||(!R))
+    {
+    	if (L&&check(L)) query(L);
+    	if (R&&check(R)) query(R);
+    }
+    else
+    {
+    	if (t[L].val>t[R].val) {if (L&&check(L)) query(L); if (R&&check(R)) query(R);}
+    	   else {if (R&&check(R)) query(R); if (L&&check(L)) query(L);}
+    }
+}
+void Solve()
+{
+	for (int i=1;i<=n;++i) p[i]=(Node){i,L[i],R[i],a[i]};
+	Root=Build(1,n,0);
+	int l,r;
+	while (m--)
+	{
+		l=(Read()+ans)%n+1; r=(Read()+ans)%n+1; if (l>r) tmp=l,l=r,r=tmp;
+		ans=0;
+		pos[0][0]=l,pos[0][1]=r;
+        pos[1][0]=0,pos[1][1]=l-1;
+        pos[2][0]=r+1,pos[2][1]=n+1;
+        query(Root);
+        writeln(ans);
+	}
+}
+int main()
+{
+	Init();
+	Solve();
+	return 0;
+}
