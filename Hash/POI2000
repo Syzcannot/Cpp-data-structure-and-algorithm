@@ -1,0 +1,51 @@
+#include<cstdio>
+#include<iostream>
+#include<algorithm>
+#define ULL unsigned long long
+using namespace std;
+const int MaxN=5+1,MaxL=2000+10,X=23333;
+int n,len[MaxN],MinL=MaxL;
+char s[MaxN][MaxL];
+ULL XL[MaxL],h[MaxN][MaxL],v[MaxL],w[MaxN*MaxL];
+void Init()
+{
+	freopen("2946.in","r",stdin); freopen("2946.out","w",stdout);
+	cin>>n; 
+	for (int i=1;i<=n;++i) 
+	{
+		char ch=getchar(); 
+		while (ch<'a'||ch>'z') ch=getchar();
+		while (ch>='a'&&ch<='z') s[i][++len[i]]=ch,ch=getchar();
+		MinL=min(MinL,len[i]);
+    }
+}
+inline bool check(int k)
+{
+	int tot=0,cnt=0;
+	for (int i=1;i<=n;++i,cnt=0)
+	{    
+		for (int j=k;j<=len[i];++j) v[++cnt]=h[i][j]-h[i][j-k]*XL[k];
+		sort(v+1,v+cnt+1);
+		w[++tot]=v[1];
+		for (int j=2;j<=cnt;++j) if(v[j]!=v[j-1]) w[++tot]=v[j]; 
+	}
+	sort(w+1,w+tot+1);
+	for (int i=n;i<=tot;++i) if (w[i]==w[i-n+1]) return 1;
+	return 0;
+}
+void Solve()
+{
+	for (int i=1;i<=n;++i) 
+	  for (int j=1;j<=len[i];++j) h[i][j]=h[i][j-1]*X+s[i][j];
+	XL[0]=1; for(int i=1;i<=MinL;++i) XL[i]=XL[i-1]*X;
+
+	int l=1,r=MinL,mid;
+	while (l<r) if (check(mid=(l+r+1)>>1)) l=mid; else r=mid-1;
+	if (check(l)) cout<<l<<endl; else puts("0");
+}
+int main()
+{
+	Init();
+	Solve();
+	return 0;
+}
