@@ -1,0 +1,116 @@
+type rec=record
+     a,b,rate,x,y,k:double;
+     id:longint;
+     end;
+const eps=1e-9;
+      inf=1e9;
+      maxn=100000+500;
+var q,t:array[0..maxn] of rec;
+    f:array[0..maxn] of double;
+    stack:array[0..maxn] of longint;
+    n:longint;
+{operator <(a,b:rec)c:boolean;
+  begin
+    exit((a.x<b.x+eps)or((abs(a.x-b.x)<=eps)and(a.y<b.y+eps)));
+  end; }
+procedure init;
+ var i:longint;
+  begin
+    readln(n,f[0]);
+    for i:=1 to n do
+     begin
+       readln(q[i].a,q[i].b,q[i].rate);
+       q[i].k:=-q[i].a/q[i].b;
+       q[i].id:=i;
+     end;
+  end;
+procedure sort_k(l,r:longint);
+ const limit=20;
+ var i,j:longint;
+     mid:double;
+     temp:rec;
+  begin
+    if l+limit>r then
+     begin
+       for i:=l to r do
+        for j:=i+1 to r do
+         if q[j].k<q[i].k then
+          begin
+            temp:=q[i]; q[i]:=q[j]; q[j]:=temp;
+          end;
+
+       exit;
+     end;
+    i:=l; j:=r; mid:=q[(l+r)>>1].k;
+    repeat
+     while q[i].k<mid do inc(i);
+     while mid<q[j].k do dec(j);
+     if not(i>j) then
+      begin
+        temp:=q[i]; q[i]:=q[j]; q[j]:=temp;
+        inc(i); dec(j);
+      end;
+    until i>j;
+    if l<j then sort_k(l,j);
+    if i<r then sort_k(i,r);
+  end;
+function max(a,b:double):double;
+  begin
+    if a>b then exit(a) else exit(b);
+  end;
+function getk(a,b:rec):double;
+  begin
+    if abs(a.x-b.x)<=eps then exit(-inf);
+    exit((a.y-b.y)/(a.x-b.x))
+  end;
+procedure solve(l,r:longint);
+ var mid,l1,l2,i,j,top:longint;
+  begin
+    if l=r then
+     begin
+       f[l]:=max(f[l],f[l-1]);
+       q[l].y:=f[l]/(q[l].a*q[l].rate+q[l].b);
+       q[l].x:=q[l].y*q[l].rate;
+       exit;
+     end;
+
+    mid:=(l+r)>>1; l1:=l; l2:=mid+1;
+    for i:=l to r do
+     begin
+       if q[i].id<=mid then begin t[l1]:=q[i]; inc(l1); end
+        else begin t[l2]:=q[i]; inc(l2); end;
+     end;
+    for i:=l to r do q[i]:=t[i];
+
+    solve(l,mid);
+    top:=0;
+    for i:=l to mid do
+     begin
+       while (top>1)and(getk(q[stack[top]],q[i])+eps>getk(q[stack[top-1]],q[stack[top]])) do dec(top);
+       inc(top); stack[top]:=i;
+     end;
+    j:=1;
+    for i:=r downto mid+1 do
+     begin
+       while (j<top)and(q[i].k<getk(q[stack[j]],q[stack[j+1]])+eps) do inc(j);
+       f[q[i].id]:=max(f[q[i].id],q[stack[j]].x*q[i].a+q[stack[j]].y*q[i].b);
+     end;
+    solve(mid+1,r);
+
+    l1:=l; l2:=mid+1;
+    for i:=l to r do
+     if (l1<=mid)and((l2>r)or(q[l1].x+eps<q[l2].x)) then begin t[i]:=q[l1]; inc(l1); end
+      else begin t[i]:=q[l2]; inc(l2); end;
+    for i:=l to r do q[i]:=t[i];
+  end;
+begin
+  init;
+  sort_k(1,n);
+  solve(1,n);
+  writeln(f[n]:0:3);
+end.
+
+
+
+
+
