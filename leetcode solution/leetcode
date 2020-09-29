@@ -1,0 +1,24 @@
+class Main{
+    public static void main(String[] args){
+        Solution solution = new Solution();
+        // Creat a test case
+        String testCase="()[]{}";
+        //Get answer
+        boolean ans=solution.isValid(testCase);
+        System.out.println(answer);
+    }
+}
+class Solution {
+public:
+    boolean isValid(String s){
+        ...
+        return ans
+    }
+
+};
+
+点击 Run 按钮会运行 Main 函数，我们可以在下方弹出的 Debug Console 中看到程序的输出结果（因为我们在最后一行代码用了 println 输出答案）。
+
+如果想要调试的话，可以在相应的行号位置设置好断点，点击 Debug 按钮，就可以进入调试模式查看代码运行情况了。
+
+这里有一点需要注意的是，由于 LeetCode 生成的答题模板的类名均为 Solution，因此会造成同一个目录下存在多个同名类的情况出现，可能导致代码无法正确执行，因此如果希望调试 LeetCode Java 代码，但当前目录又存在有多个 LeetCode Java 文件时，需要保证类名的唯一性，我们可以把被调试的 Solution 类改一个名字（但要记住提交时把名字改回来），或者干脆拷贝到另一个干净的目录下调试即可。
