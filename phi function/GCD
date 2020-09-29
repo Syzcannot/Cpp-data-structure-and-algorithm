@@ -1,0 +1,36 @@
+const maxn=10000000;
+var prime:array[0..2000000] of longint;
+    vis:array[0..maxn] of boolean;
+    phi:array[0..maxn] of longint;
+    f:array[0..maxn] of int64;
+    n,i,j,k,prime_cnt:longint;
+    ans:int64;
+begin
+  fillchar(vis,sizeof(vis),false);
+  fillchar(phi,sizeof(phi),0);
+  readln(n);
+  prime_cnt:=0;
+  for i:=2 to n do
+   if not vis[i] then
+    begin
+      inc(prime_cnt);
+      prime[prime_cnt]:=i;
+      phi[i]:=i-1;
+      for j:=2 to n div i do
+       begin
+         vis[i*j]:=true;
+         if phi[i*j]=0 then phi[i*j]:=i*j;
+         phi[i*j]:=phi[i*j] div i*(i-1)
+       end;
+    end;
+  //for i:=1 to n do writeln(phi[i]);
+  ans:=0;
+  for i:=1 to n do f[i]:=f[i-1]+phi[i];
+  for i:=1 to prime_cnt do
+   begin
+     ans:=ans+1;
+     k:=n div prime[i];
+     ans:=ans+f[k]*2;
+   end;
+  writeln(ans);
+end.
