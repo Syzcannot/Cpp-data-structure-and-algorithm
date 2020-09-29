@@ -1,0 +1,94 @@
+#include<bits/stdc++.h>
+#define LL long long
+using namespace std;
+const int MOD=998244353,MAXN=200000+10,MAXB=22;
+int n,p,k,m,d,f[MAXB][MAXN],g[MAXB][MAXN],r[MAXN],ans[MAXN];
+LL a[MAXN],b[MAXN];
+LL inv,x[MAXB];
+inline LL pw(LL x,int k) 
+{
+    LL ret=1;
+    while (k) 
+	{
+        if(k&1) ret=ret*x%MOD;
+        k>>=1,x=x*x%MOD;
+    }
+    return ret;
+}
+void NTT_init()
+{
+	for (m=1;m<(p<<1);m<<=1) ++d;
+	for (int i=0;i<m;++i) r[i]=(r[i>>1]>>1)|((i&1)<<(d-1));
+	inv=pw(m,MOD-2);
+}
+inline void NTT(LL *A,int f)
+{
+	for (int i=0;i<m;++i) if(i<r[i]) swap(A[i],A[r[i]]);
+    for (int i=1;i<m;i<<=1)
+	{
+        LL t0=pw(3,(MOD-1)/(i<<1)),x,y;
+        for (int j=0;j<m;j+=(i<<1))
+		{
+            LL t=1;
+            for (int k=0;k<i;++k,t=t0*t%MOD)
+			{
+                x=A[j+k],y=A[i+j+k]*t%MOD;
+                A[j+k]=(x+y)%MOD,A[i+j+k]=(x-y+MOD)%MOD;
+            }
+        }
+    }
+    if (f==1) 
+	{
+		reverse(A+1,A+m);
+		for (int i=0;i<m;++i) A[i]=A[i]*inv%MOD;
+	}
+}
+int main()
+{
+	//freopen("test.in","r",stdin);
+	cin>>n>>x[0]>>p>>k;
+	for (int i='a';i<='z';++i) ++f[0][i%p],++g[0][i%p];
+	NTT_init();
+	for (int i=1;(1<<i)<=n;++i)
+	{
+		for (int j=0;j<m;++j) a[j]=b[j]=0;
+		for (int j=0;j<p;++j) a[j*x[i-1]%p]=(a[j*x[i-1]%p]+f[i-1][j])%MOD;
+        for (int j=0;j<p;++j) b[j]=f[i-1][j]; 
+        NTT(a,0),NTT(b,0);
+        for (int j=0;j<m;++j) a[j]=1LL*a[j]*b[j]%MOD;
+        NTT(a,1);
+        for (int j=0;j<m;++j) f[i][j%p]=(f[i][j%p]+a[j])%MOD;
+        
+        for (int j=0;j<m;++j) a[j]=b[j]=0;
+		for (int j=0;j<p;++j) a[j*x[i-1]%p]=(a[j*x[i-1]%p]+g[i-1][j])%MOD;
+        for (int j=0;j<p;++j) b[j]=f[i-1][j]; 
+        NTT(a,0),NTT(b,0);
+        for (int j=0;j<m;++j) a[j]=a[j]*b[j]%MOD;
+        NTT(a,1);
+        for (int j=0;j<m;++j) g[i][j%p]=(g[i][j%p]+a[j])%MOD;
+        for (int j=0;j<p;++j) g[i][j]=(g[i][j]+g[i-1][j])%MOD;
+        x[i]=x[i-1]*x[i-1]%p;
+	}
+	bool flag=0;
+	for (int i=0;i<=20;++i) if (n&(1<<i))
+	{
+		if (flag) 
+		{
+			for (int j=0;j<m;++j) a[j]=b[j]=0;
+		    for (int j=0;j<p;++j) a[j*x[i]%p]=(a[j*x[i]%p]+ans[j])%MOD;
+            for (int j=0;j<p;++j) b[j]=f[i][j]; 
+            NTT(a,0),NTT(b,0);
+            for (int j=0;j<m;++j) a[j]=a[j]*b[j]%MOD;
+            NTT(a,1);
+            for (int j=0;j<p;++j) ans[j]=g[i][j];
+            for (int j=0;j<m;++j) ans[j%p]=(ans[j%p]+a[j])%MOD;
+		}
+		else 
+		{
+			flag=1;
+			for (int j=0;j<p;++j) ans[j]=g[i][j];
+		}
+	}
+	cout<<ans[k]<<endl;
+	return 0;
+}
