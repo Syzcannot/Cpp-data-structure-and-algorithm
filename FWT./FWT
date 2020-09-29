@@ -1,0 +1,23 @@
+void FWT_or(int *a,int opt)
+{
+    for (int i=1;i<m;i<<=1)
+      for (int p=i<<1,j=0;j<m;j+=p)
+        for (int k=0;k<i;++k) if(opt==1) a[i+j+k]=(a[j+k]+a[i+j+k])%MOD; else a[i+j+k]=(a[i+j+k]-a[j+k]+MOD)%MOD;
+}
+inline void FWT_and(int *a,int opt)
+{
+    for (int i=1;i<m;i<<=1)
+      for (int p=i<<1,j=0;j<m;j+=p)
+        for (int k=0;k<i;++k) if(opt==1) a[j+k]=(a[j+k]+a[i+j+k])%MOD; else a[j+k]=(a[j+k]-a[i+j+k]+MOD)%MOD;
+}
+inline void FWT_xor(int *a,int opt)
+{
+    for (int i=1;i<m;i<<=1)
+      for (int p=i<<1,j=0;j<m;j+=p)
+        for (int k=0;k<i;++k)
+        {
+            int x=a[j+k],y=a[i+j+k];
+            a[j+k]=(x+y)%MOD,a[i+j+k]=(x-y+MOD)%MOD;
+            if (opt==-1) a[j+k]=1LL*a[j+k]*inv2%MOD,a[i+j+k]=1LL*a[i+j+k]*inv2%MOD;
+        }
+}
