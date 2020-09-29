@@ -1,0 +1,134 @@
+#include<cstdio>
+#include<iostream>
+#include<cstring>
+#include<algorithm>
+#define LL long long
+using namespace std;
+const int MAXN=300000+10;
+int n,l,r;
+struct FHQTreap{
+	int root,cnt;
+    int s[MAXN*2][2],val[MAXN*2],tag[MAXN*2],size[MAXN*2],k[MAXN*2];
+	#define ls s[x][0]
+    #define rs s[x][1]
+    int newnode(int v)
+    {
+        val[++cnt]=v,k[cnt]=rand();
+        size[cnt]=1;
+        return cnt;
+	}
+	void update(int x) {size[x]=size[ls]+size[rs]+1;}
+    int Build(int l,int r) 
+	{
+		int mid=(l+r)>>1,x=newnode(n+1); 
+	    if (l<mid) ls=Build(l,mid-1);
+	    if (mid<r) rs=Build(mid+1,r);
+	    update(x);
+	    return x;
+	}
+	void pushdown(int x)
+	{
+		if (tag[x])
+		{
+			val[x]+=tag[x];
+			tag[ls]+=tag[x];
+			tag[rs]+=tag[x];
+			tag[x]=0;
+		}
+	}
+	void Init(int n) {root=Build(1,n);}
+	void split1(int x,int v,int &t1,int &t2)
+    {
+    	pushdown(x);
+    	if (!x) t1=t2=0;
+    	else
+    	{
+    		if (val[x]<v) t1=x,split1(rs,v,rs,t2); 
+			   else t2=x,split1(ls,v,t1,ls);
+            update(x);
+        }
+    } 
+    void split2(int x,int k,int &t1,int &t2)
+    {
+    	pushdown(x);
+    	if (!x) t1=t2=0;
+    	else
+    	{
+    		if (k<=size[ls]) t2=x,split2(ls,k,t1,ls);
+			  else t1=x,split2(rs,k-size[ls]-1,rs,t2); 
+            update(x);
+        }
+    } 
+    int merge(int t1,int t2)
+    {
+    	pushdown(t1); pushdown(t2);
+    	if (!t1) return t2;
+    	if (!t2) return t1;
+    	if (k[t1]<k[t2])
+    	{
+    		s[t1][1]=merge(s[t1][1],t2);
+    		update(t1);
+    		return t1;
+		}
+		else
+		{
+			s[t2][0]=merge(t1,s[t2][0]);
+    		update(t2);
+    		return t2;
+		}
+    }
+    void insert(int v)
+    {
+    	int x,y;
+    	split1(root,v,x,y);
+    	root=merge(merge(x,newnode(v)),y);
+	}
+    void del(int v)
+    {
+    	int x,y,z;
+    	split1(root,v,x,z);
+		split2(z,1,z,y);
+		root=merge(x,y);
+		//y=merge(s[y][0],s[y][1]);
+		//root=merge(merge(x,y),z);
+	}
+	void mark(int l,int r)
+	{
+		int x,y,z;
+		split1(root,l,x,z);
+		split1(z,r,y,z);
+		tag[y]=1;
+		root=merge(merge(x,y),z);
+	}
+	void Add(int l,int r)
+	{
+		del(r);
+		mark(l,r);
+		insert(l);
+	}
+	int ans()
+	{
+		int x,y;
+		split1(root,n+1,x,y);
+		return size[x];
+	}
+} T;
+inline int Read() 
+{
+    int x=0,f=1; char ch=getchar(); 
+    while (ch<'0'||ch>'9') {if (ch=='-') f=-f; ch=getchar();}
+    while (ch>='0'&&ch<='9') x=x*10+ch-'0',ch=getchar();
+    return x*f;
+}
+int main()
+{
+	n=Read();
+	T.Init(n);
+	for (int i=1;i<=n;++i) 
+	{
+		l=Read(),r=Read();
+		T.Add(l,r);
+	}
+	cout<<T.ans()<<endl;
+	return 0;
+}
